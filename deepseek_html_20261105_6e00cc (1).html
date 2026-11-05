@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Кому в семье платить за лечение?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-body: #f8f6f2;
+    --bg-card: #ffffff;
+    --border-light: #e8e4dc;
+    --border-focus: #d1cbc0;
+    --primary: #2c4a7c;
+    --primary-hover: #1e365d;
+    --primary-light: #eef2f8;
+    --accent: #2d7a5b;
+    --accent-light: #e8f5ee;
+    --text-main: #2b2b2b;
+    --text-muted: #6b6b6b;
+    --danger: #c0392b;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg-body);
+    color: var(--text-main);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  header {
+    background: linear-gradient(135deg, #2c4a7c 0%, #1e365d 100%);
+    color: #fff;
+    padding: 32px 20px 28px;
+  }
+  .header-container {
+    max-width: 640px;
+    margin: 0 auto;
+    text-align: left;
+    padding: 0 16px;
+  }
+  .header-kicker {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    opacity: 0.8;
+    margin-bottom: 8px;
+  }
+  header h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 0 0 12px;
+    line-height: 1.25;
+  }
+  .header-subtitle {
+    font-size: 0.95rem;
+    opacity: 0.9;
+    margin: 0;
+    font-weight: 400;
+    max-width: 520px;
+    line-height: 1.5;
+  }
+
+  main {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 20px 16px 40px;
+  }
+
+  .mode-switch {
+    display: flex;
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 24px;
+    padding: 4px;
+    position: relative;
+  }
+  .mode-btn {
+    flex: 1;
+    padding: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    z-index: 1;
+  }
+  .mode-btn:hover { color: var(--primary); }
+  .mode-btn.active {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(44, 74, 124, 0.3);
+  }
+
+  .section { display: none; }
+  .section.active { 
+    display: block; 
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .group-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    margin: 16px 0 8px;
+    padding-left: 2px;
+  }
+  .group-title:first-of-type {
+    margin-top: 0;
+  }
+
+  .btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .btn-tab {
+    flex: 1;
+    min-width: 100px;
+    border: 1px solid var(--border-light);
+    background: var(--bg-card);
+    color: var(--text-main);
+    padding: 12px 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 56px;
+    box-shadow: var(--shadow-sm);
+  }
+  .btn-tab:hover {
+    border-color: var(--primary);
+    background: var(--primary-light);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+  .btn-tab.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+    box-shadow: 0 3px 8px rgba(44, 74, 124, 0.3);
+  }
+  .btn-tab .name-part {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--primary);
+    margin-top: 4px;
+    text-transform: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  .btn-tab.active .name-part { color: rgba(255,255,255,0.9); }
+
+  .edit-area {
+    margin-top: 24px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-md);
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  .edit-area.active { display: block; }
+  
+  .edit-area h3 {
+    margin-bottom: 16px;
+    font-size: 1.1rem;
+    color: var(--primary);
+    font-weight: 600;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--primary-light);
+  }
+
+  .form-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .form-table tr {
+    border-bottom: 1px solid var(--border-light);
+  }
+  .form-table tr:last-child { border-bottom: none; }
+  .form-table td {
+    padding: 12px 0;
+    vertical-align: middle;
+  }
+  .form-table td:first-child {
+    width: 45%;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text-main);
+  }
+  .form-table td:last-child { width: 55%; }
+
+  input[type="text"], input[type="number"], select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: var(--text-main);
+    background: #fafafa;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(44, 74, 124, 0.1);
+    background: #fff;
+  }
+
+  .error-text {
+    color: var(--danger);
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-top: 4px;
+    display: none;
+  }
+
+  .treatment-box {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-md);
+  }
+
+  .btn-calc {
+    width: 100%;
+    padding: 16px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    margin-top: 24px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 10px rgba(45, 122, 91, 0.2);
+  }
+  .btn-calc:hover {
+    background: #24634a;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(45, 122, 91, 0.3);
+  }
+  .btn-calc:active { transform: translateY(0); }
+
+  .results-box {
+    margin-top: 24px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-md);
+    display: none;
+    border-top: 4px solid var(--accent);
+  }
+  .results-box h3 {
+    margin-bottom: 16px;
+    font-size: 1.1rem;
+    color: var(--text-main);
+    font-weight: 700;
+  }
+
+  .res-item {
+    padding: 14px 12px;
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: background 0.2s ease;
+    border-radius: 6px;
+  }
+  .res-item:last-child { border-bottom: none; }
+  .res-item.best {
+    background: var(--accent-light);
+    border-left: 4px solid var(--accent);
+  }
+  
+  .res-header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+  }
+  .res-header strong {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  .res-sum {
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 1.1rem;
+    white-space: nowrap;
+  }
+  .res-header .red { color: var(--danger); font-weight: 700; }
+
+  .muted {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+
+  @media (max-width: 480px) {
+    .btn-row { gap: 6px; }
+    .btn-tab { 
+      min-width: calc(50% - 6px); 
+      flex: none;
+      width: calc(50% - 6px);
+      padding: 10px 4px;
+      min-height: 52px;
+    }
+    .form-table td:first-child { width: 40%; font-size: 0.8rem; }
+    .form-table td:last-child { width: 60%; }
+    main { padding: 16px 12px 30px; }
+    header h1 { font-size: 1.3rem; }
+    .header-container { padding: 0 8px; }
+    .results-box { padding: 16px; }
+    .res-sum { font-size: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-container">
+    <div class="header-kicker">Семейный налоговый навигатор</div>
+    <h1>Кому в семье платить за лечение?</h1>
+    <p class="header-subtitle">
+      Добавьте близких, выберите пациента и сравните поддерживаемые сценарии заявления вычета.
+    </p>
+  </div>
+</header>
+
+<main>
+  <div class="mode-switch">
+    <button class="mode-btn active" id="btn-mode-family">Семья</button>
+    <button class="mode-btn" id="btn-mode-treatment">Лечение</button>
+  </div>
+
+  <!-- РЕЖИМ 1: СЕМЬЯ -->
+  <div id="mode-family" class="section active">
+    
+    <div class="group-title">Старшее поколение</div>
+    <div class="btn-row">
+      <button class="btn-tab" data-person="papa-muzha"><span>ОТЕЦ МУЖА</span></button>
+      <button class="btn-tab" data-person="mama-muzha"><span>МАТЬ МУЖА</span></button>
+      <button class="btn-tab" data-person="papa-zheny"><span>ОТЕЦ ЖЕНЫ</span></button>
+      <button class="btn-tab" data-person="mama-zheny"><span>МАТЬ ЖЕНЫ</span></button>
+    </div>
+
+    <div class="group-title">Родители</div>
+    <div class="btn-row">
+      <button class="btn-tab" data-person="muzh"><span>МУЖ</span></button>
+      <button class="btn-tab" data-person="zhena"><span>ЖЕНА</span></button>
+    </div>
+
+    <div class="group-title">Дети</div>
+    <div class="btn-row">
+      <button class="btn-tab" data-person="reb1"><span>РЕБЕНОК 1</span></button>
+      <button class="btn-tab" data-person="reb2"><span>РЕБЕНОК 2</span></button>
+      <button class="btn-tab" data-person="reb3"><span>РЕБЕНОК 3</span></button>
+      <button class="btn-tab" data-person="reb4"><span>РЕБЕНОК 4</span></button>
+    </div>
+
+    <div class="edit-area" id="family-edit-area">
+      <h3 id="edit-title"></h3>
+      <table class="form-table">
+        <tr>
+          <td>Имя</td>
+          <td><input type="text" id="input-name"></td>
+        </tr>
+        <tr id="row-gender" style="display:none;">
+          <td>Пол</td>
+          <td>
+            <select id="input-gender">
+              <option value="son">Мужской</option>
+              <option value="daughter">Женский</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Возраст</td>
+          <td><input type="number" id="input-age"></td>
+        </tr>
+        <tr id="row-study" style="display:none;">
+          <td>Обучение</td>
+          <td>
+            <select id="input-study">
+              <option value="none">Не учится</option>
+              <option value="fulltime">Очно</option>
+            </select>
+          </td>
+        </tr>
+        
+        <tbody id="adult-employment-block">
+          <tr>
+            <td>Занятость</td>
+            <td>
+              <select id="input-employment"></select>
+            </td>
+          </tr>
+          <tr id="row-salary">
+            <td id="salary-label">Зарплата на руки (в месяц), руб</td>
+            <td>
+              <input type="number" id="input-salary">
+            </td>
+          </tr>
+        </tbody>
+        
+        <tr id="row-used-limit">
+          <td>Получено вычетов за текущий год, руб</td>
+          <td>
+            <input type="number" id="input-used-limit" value="0">
+            <div class="error-text" id="limit-error">Сумма не может превышать 19 500 руб</div>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- РЕЖИМ 2: ЛЕЧЕНИЕ -->
+  <div id="mode-treatment" class="section">
+    <div class="treatment-box">
+      <table class="form-table">
+        <tr>
+          <td>Кто пациент?</td>
+          <td>
+            <select id="patient-select"></select>
+          </td>
+        </tr>
+        <tr>
+          <td>Стоимость лечения, руб</td>
+          <td><input type="number" id="cost-input" value="100000"></td>
+        </tr>
+        <tr>
+          <td>Тип лечения</td>
+          <td>
+            <select id="service-type">
+              <option value="ordinary">Обычное (код 1)</option>
+              <option value="expensive">Дорогостоящее (код 2)</option>
+            </select>
+            <div class="muted" style="margin-top:6px;">Код услуги можно уточнить в клинике</div>
+          </td>
+        </tr>
+      </table>
+
+      <button class="btn-calc" id="calc-btn">Рассчитать вычет</button>
+
+      <div id="results-box" class="results-box">
+        <h3>Результаты расчета</h3>
+        <div id="results-list"></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+/* ===================== ДАННЫЕ ===================== */
+const familyData = {
+  'papa-muzha': { name: '', age: '', employment: 'trud', salary: '', receivedDeductions: 0, role: 'parent', targetChild: 'muzh', label: 'ОТЕЦ МУЖА', study: 'none' },
+  'mama-muzha': { name: '', age: '', employment: 'trud', salary: '', receivedDeductions: 0, role: 'parent', targetChild: 'muzh', label: 'МАТЬ МУЖА', study: 'none' },
+  'papa-zheny': { name: '', age: '', employment: 'trud', salary: '', receivedDeductions: 0, role: 'parent', targetChild: 'zhena', label: 'ОТЕЦ ЖЕНЫ', study: 'none' },
+  'mama-zheny': { name: '', age: '', employment: 'trud', salary: '', receivedDeductions: 0, role: 'parent', targetChild: 'zhena', label: 'МАТЬ ЖЕНЫ', study: 'none' },
+  'muzh':       { name: 'Сергей', age: 32, employment: 'trud', salary: 52200, receivedDeductions: 0, role: 'spouse', label: 'МУЖ', study: 'none' },
+  'zhena':      { name: 'Елизавета', age: 30, employment: 'trud', salary: 34800, receivedDeductions: 0, role: 'spouse', label: 'ЖЕНА', study: 'none' },
+  'reb1':       { name: 'Анна', age: 14, employment: 'none', salary: '', receivedDeductions: 0, role: 'child', gender: 'daughter', study: 'none', label: 'РЕБЕНОК 1' },
+  'reb2':       { name: 'Сергей', age: 20, employment: 'none', salary: '', receivedDeductions: 0, role: 'child', gender: 'son', study: 'fulltime', label: 'РЕБЕНОК 2' },
+  'reb3':       { name: '', age: '', employment: 'none', salary: '', receivedDeductions: 0, role: 'child', gender: 'son', study: 'none', label: 'РЕБЕНОК 3' },
+  'reb4':       { name: '', age: '', employment: 'none', salary: '', receivedDeductions: 0, role: 'child', gender: 'son', study: 'none', label: 'РЕБЕНОК 4' }
+};
+
+let currentEditId = null;
+
+const ADULT_EMPLOYMENT_OPTIONS = `
+  <option value="trud">Работа по трудовому договору</option>
+  <option value="gph">Гражданско-правовой договор (ГПХ)</option>
+  <option value="ip">ИП на общей системе (ОСНО)</option>
+  <option value="military">Военная служба / силовые структуры</option>
+  <option value="none">Другое / нет доходов</option>
+`;
+
+const CHILD_EMPLOYMENT_OPTIONS = `
+  <option value="none">Нет доходов</option>
+  <option value="trud">Работа по трудовому договору</option>
+`;
+
+/* ===================== ПЕРЕКЛЮЧЕНИЕ РЕЖИМОВ ===================== */
+const btnModeFamily = document.getElementById('btn-mode-family');
+const btnModeTreatment = document.getElementById('btn-mode-treatment');
+const modeFamily = document.getElementById('mode-family');
+const modeTreatment = document.getElementById('mode-treatment');
+
+btnModeFamily.addEventListener('click', () => {
+  btnModeFamily.classList.add('active');
+  btnModeTreatment.classList.remove('active');
+  modeFamily.classList.add('active');
+  modeTreatment.classList.remove('active');
+});
+
+btnModeTreatment.addEventListener('click', () => {
+  btnModeTreatment.classList.add('active');
+  btnModeFamily.classList.remove('active');
+  modeTreatment.classList.add('active');
+  modeFamily.classList.remove('active');
+  updatePatientSelect();
+});
+
+/* ===================== ЛОГИКА СЕМЬИ ===================== */
+const editArea = document.getElementById('family-edit-area');
+const editTitle = document.getElementById('edit-title');
+const inputName = document.getElementById('input-name');
+const inputAge = document.getElementById('input-age');
+const inputEmployment = document.getElementById('input-employment');
+const inputSalary = document.getElementById('input-salary');
+const inputUsedLimit = document.getElementById('input-used-limit');
+const limitError = document.getElementById('limit-error');
+const salaryLabel = document.getElementById('salary-label');
+const rowSalary = document.getElementById('row-salary');
+const rowStudy = document.getElementById('row-study');
+const inputStudy = document.getElementById('input-study');
+const rowGender = document.getElementById('row-gender');
+const inputGender = document.getElementById('input-gender');
+const adultEmploymentBlock = document.getElementById('adult-employment-block');
+const rowUsedLimit = document.getElementById('row-used-limit');
+
+function updateButtonText(id) {
+  const data = familyData[id];
+  const btn = document.querySelector(`.btn-tab[data-person="${id}"]`);
+  if (!btn) return;
+
+  let mainLabel = data.label;
+  
+  if (data.role === 'child') {
+    if (data.name && data.name.trim() !== '') {
+      mainLabel = data.gender === 'daughter' ? 'ДОЧЬ' : 'СЫН';
+    } else {
+      mainLabel = data.label;
+    }
+  }
+
+  if (data.name && data.name.trim() !== '') {
+    btn.innerHTML = `<span>${mainLabel}</span><span class="name-part">${data.name}</span>`;
+  } else {
+    btn.innerHTML = `<span>${mainLabel}</span>`;
+  }
+}
+
+function toggleSalaryField() {
+  const val = inputEmployment.value;
+  
+  if (val === 'none') {
+    rowSalary.style.display = 'none';
+  } else {
+    rowSalary.style.display = 'table-row';
+    
+    if (val === 'ip') {
+      salaryLabel.textContent = 'Средний доход ИП (в месяц), руб';
+    } else {
+      salaryLabel.textContent = 'Зарплата на руки (в месяц), руб';
+    }
+  }
+}
+
+function toggleStudyField(age, role) {
+  if (role === 'child' && age >= 18 && age < 24) {
+    rowStudy.style.display = 'table-row';
+  } else {
+    rowStudy.style.display = 'none';
+  }
+}
+
+function toggleChildFields() {
+  const age = Number(inputAge.value);
+  const data = familyData[currentEditId];
+  if (!data || data.role !== 'child') return;
+
+  toggleStudyField(age, 'child');
+
+  if (age >= 14) {
+    adultEmploymentBlock.style.display = 'table-row-group';
+    rowUsedLimit.style.display = 'table-row';
+    toggleSalaryField();
+  } else {
+    adultEmploymentBlock.style.display = 'none';
+    rowUsedLimit.style.display = 'none';
+    
+    if (currentEditId) {
+      familyData[currentEditId].employment = 'none';
+      familyData[currentEditId].receivedDeductions = 0;
+      inputEmployment.value = 'none';
+      inputUsedLimit.value = 0;
+      rowSalary.style.display = 'none';
+    }
+  }
+}
+
+document.querySelectorAll('.btn-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const id = btn.getAttribute('data-person');
+    
+    document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    currentEditId = id;
+    const data = familyData[id];
+    
+    editTitle.textContent = data.label;
+    inputName.value = data.name || '';
+    inputAge.value = data.age || '';
+    inputUsedLimit.value = data.receivedDeductions || 0;
+    inputStudy.value = data.study || 'none';
+    
+    limitError.style.display = 'none';
+    
+    if (data.role === 'child') {
+      rowGender.style.display = 'table-row';
+      inputEmployment.innerHTML = CHILD_EMPLOYMENT_OPTIONS;
+      
+      inputGender.value = data.gender || 'son';
+      
+      toggleChildFields();
+      inputEmployment.value = data.employment || 'none';
+      inputSalary.value = data.salary || '';
+    } else {
+      rowGender.style.display = 'none';
+      rowStudy.style.display = 'none';
+      adultEmploymentBlock.style.display = 'table-row-group';
+      rowUsedLimit.style.display = 'table-row';
+      
+      inputEmployment.innerHTML = ADULT_EMPLOYMENT_OPTIONS;
+      inputEmployment.value = data.employment || 'trud';
+      inputSalary.value = data.salary || '';
+      
+      toggleSalaryField();
+    }
+    
+    editArea.classList.add('active');
+  });
+});
+
+inputName.addEventListener('input', () => { 
+  if (currentEditId) {
+    familyData[currentEditId].name = inputName.value; 
+    updateButtonText(currentEditId);
+  }
+});
+
+inputAge.addEventListener('input', () => { 
+  if (currentEditId) {
+    const age = Number(inputAge.value);
+    familyData[currentEditId].age = age; 
+    
+    if (familyData[currentEditId].role === 'child') {
+      toggleChildFields();
+    }
+  }
+});
+
+inputEmployment.addEventListener('change', () => { 
+  if (currentEditId) {
+    familyData[currentEditId].employment = inputEmployment.value; 
+    toggleSalaryField();
+  }
+});
+
+inputSalary.addEventListener('input', () => { if (currentEditId) familyData[currentEditId].salary = Number(inputSalary.value); });
+
+inputUsedLimit.addEventListener('input', () => { 
+  if (currentEditId) {
+    let val = Number(inputUsedLimit.value);
+    if (val > 19500) {
+      val = 19500;
+      inputUsedLimit.value = val;
+    }
+    familyData[currentEditId].receivedDeductions = val;
+  }
+});
+
+inputStudy.addEventListener('change', () => { if (currentEditId) familyData[currentEditId].study = inputStudy.value; });
+
+inputGender.addEventListener('change', () => {
+  if (currentEditId) {
+    familyData[currentEditId].gender = inputGender.value;
+    updateButtonText(currentEditId);
+  }
+});
+
+/* ===================== ЛОГИКА ЛЕЧЕНИЯ ===================== */
+function updatePatientSelect() {
+  const select = document.getElementById('patient-select');
+  const currentVal = select.value;
+  select.innerHTML = '<option value="">— Выберите пациента —</option>';
+  
+  for (const [id, data] of Object.entries(familyData)) {
+    if (data.name && data.name.trim() !== '') {
+      const opt = document.createElement('option');
+      opt.value = id;
+      
+      let roleText = data.label.charAt(0) + data.label.slice(1).toLowerCase();
+      if (data.role === 'child') {
+        roleText = data.gender === 'daughter' ? 'Дочь' : 'Сын';
+      }
+      
+      opt.textContent = `${data.name} (${roleText})`;
+      select.appendChild(opt);
+    }
+  }
+  
+  if (Array.from(select.options).some(o => o.value === currentVal)) {
+    select.value = currentVal;
+  }
+}
+
+const MAX_REFUND_LIMIT = 19500;
+const RATE = 0.13;
+
+function isEligibleChildAge(patient) {
+  if (patient.age < 18) return true;
+  if (patient.age >= 18 && patient.age < 24 && patient.study === 'fulltime') return true;
+  return false;
+}
+
+function checkEligibility(claimant, patient) {
+  if (claimant.id === patient.id) {
+    if (claimant.employment === 'none') {
+      return { allowed: false, reason: 'Нет дохода, облагаемого НДФЛ' };
+    }
+    return { allowed: true, reason: 'Свое лечение' };
+  }
+  
+  if (claimant.role === 'spouse' && patient.role === 'spouse') {
+    if (claimant.employment === 'none') {
+      return { allowed: false, reason: 'Нет дохода, облагаемого НДФЛ' };
+    }
+    const spouseLabel = claimant.id === 'muzh' ? 'Лечение супруги' : 'Лечение супруга';
+    return { allowed: true, reason: spouseLabel };
+  }
+  
+  if (claimant.role === 'spouse' && patient.role === 'child') {
+    if (claimant.employment === 'none') {
+      return { allowed: false, reason: 'Нет дохода, облагаемого НДФЛ' };
+    }
+    if (isEligibleChildAge(patient)) {
+      if (patient.age < 18) return { allowed: true, reason: 'Лечение ребенка до 18 лет' };
+      return { allowed: true, reason: 'Лечение студента-очника до 24 лет' };
+    }
+    return { allowed: false, reason: 'Родители могут получить вычет только за лечение детей до 18 лет (или до 24 при очном обучении)' };
+  }
+  
+  if (claimant.role === 'child' && patient.role === 'spouse') {
+    if (claimant.employment === 'none') {
+      return { allowed: false, reason: 'Нет дохода, облагаемого НДФЛ' };
+    }
+    if (claimant.age < 18) {
+      return { allowed: false, reason: 'Ребенок не может получить вычет за родителя' };
+    }
+    return { allowed: true, reason: 'Лечение родителя' };
+  }
+
+  if (claimant.role === 'parent' && patient.role === 'spouse') {
+    let isMyChild = false;
+    
+    if ((claimant.id === 'papa-muzha' || claimant.id === 'mama-muzha') && patient.id === 'muzh') isMyChild = true;
+    if ((claimant.id === 'papa-zheny' || claimant.id === 'mama-zheny') && patient.id === 'zhena') isMyChild = true;
+    
+    if (!isMyChild) {
+      return { allowed: false, reason: 'Это не ваш ребенок' };
+    }
+
+    if (claimant.employment === 'none') {
+      return { allowed: false, reason: 'Нет дохода, облагаемого НДФЛ' };
+    }
+
+    if (isEligibleChildAge(patient)) {
+      if (patient.age < 18) return { allowed: true, reason: 'Лечение ребенка до 18 лет' };
+      return { allowed: true, reason: 'Лечение студента-очника до 24 лет' };
+    }
+    return { allowed: false, reason: 'Родители могут получить вычет только за лечение детей до 18 лет (или до 24 при очном обучении)' };
+  }
+
+  if (claimant.role === 'parent' && patient.role === 'child') {
+    return { allowed: false, reason: 'Бабушки и дедушки получают вычет за внуков только как опекуны или при отсутствии родителей' };
+  }
+  
+  return { allowed: false, reason: 'Нет права на вычет по родству' };
+}
+
+// Вспомогательная функция для получения роли в семье
+function getRoleLabel(person) {
+  if (person.role === 'child') {
+    return person.gender === 'daughter' ? 'дочь' : 'сын';
+  }
+  return person.label.toLowerCase();
+}
+
+document.getElementById('calc-btn').addEventListener('click', () => {
+  const patientId = document.getElementById('patient-select').value;
+  const patient = familyData[patientId];
+  
+  const cost = Number(document.getElementById('cost-input').value) || 0;
+  const serviceType = document.getElementById('service-type').value;
+
+  const resultsContainer = document.getElementById('results-box');
+  const listEl = document.getElementById('results-list');
+  
+  listEl.innerHTML = '';
+
+  if (!patient) {
+    listEl.innerHTML = '<p style="color:var(--danger); font-weight:600;">Ошибка: выберите пациента.</p>';
+    resultsContainer.style.display = 'block';
+    return;
+  }
+  
+  const patientWithId = { ...patient, id: patientId };
+  
+  let bestEffect = 0;
+
+  const claimants = Object.entries(familyData).filter(([id, p]) => p.name);
+  
+  if (claimants.length === 0) {
+    listEl.innerHTML = '<p style="color:var(--danger); font-weight:600;">В семье нет никого с именем.</p>';
+    resultsContainer.style.display = 'block';
+    return;
+  }
+
+  const calculated = claimants.map(([id, c]) => {
+    const claimantWithId = { ...c, id }; 
+    const elig = checkEligibility(claimantWithId, patientWithId);
+    
+    let effect = 0;
+    let remainingRefund = MAX_REFUND_LIMIT;
+    let limitNote = '';
+    
+    let grossAnnual = 0;
+    if (c.salary && c.employment !== 'none') {
+      grossAnnual = c.salary * 12;
+    }
+
+    if (elig.allowed) {
+      const alreadyReceived = c.receivedDeductions || 0;
+      
+      remainingRefund = Math.max(0, MAX_REFUND_LIMIT - alreadyReceived);
+      
+      if (serviceType === 'ordinary') {
+        effect = Math.round(Math.min(cost * RATE, remainingRefund));
+      } else {
+        effect = Math.round(cost * RATE);
+      }
+      
+      if (grossAnnual > 0) {
+        const maxRefundByIncome = Math.round(grossAnnual * RATE);
+        if (effect > maxRefundByIncome) {
+          effect = maxRefundByIncome;
+          limitNote = ' (ограничено уплаченным НДФЛ за год)';
+        }
+      }
+    }
+    
+    return { 
+      claimant: c, 
+      id: id,
+      allowed: elig.allowed, 
+      reason: elig.reason, 
+      effect: effect, 
+      grossAnnual: Math.round(grossAnnual), 
+      remainingRefund: Math.round(remainingRefund),
+      alreadyReceived: c.receivedDeductions || 0,
+      limitNote: limitNote
+    };
+  });
+
+  calculated.forEach(r => {
+    if (r.allowed && r.effect > bestEffect) {
+      bestEffect = r.effect;
+    }
+  });
+
+  // Сортировка по убыванию размера вычета
+  calculated.sort((a, b) => b.effect - a.effect);
+
+  calculated.forEach(r => {
+    const isBest = r.allowed && r.effect === bestEffect && bestEffect > 0;
+    const div = document.createElement('div');
+    div.className = `res-item ${isBest ? 'best' : ''}`;
+    
+    // Добавляем роль в семье к имени
+    const roleLabel = getRoleLabel(r.claimant);
+    
+    let html = `
+      <div class="res-header">
+        <strong>${r.claimant.name} <span style="font-weight: 400; font-size: 0.85rem; color: var(--text-muted);">(${roleLabel})</span></strong>
+        ${r.allowed ? `<div class="res-sum">${r.effect.toLocaleString('ru-RU')} руб</div>` : `<div class="red">0 руб</div>`}
+      </div>
+      <div class="muted">${r.reason}${r.limitNote}</div>
+    `;
+    
+    if (r.allowed && r.claimant.employment !== 'none') {
+      if (r.grossAnnual > 0) {
+        html += `<div class="muted">Годовой доход до НДФЛ: ~${r.grossAnnual.toLocaleString('ru-RU')} руб</div>`;
+      } else {
+        html += `<div class="muted">Зарплата не указана — расчет по предельным лимитам</div>`;
+      }
+      
+      if (serviceType === 'ordinary') {
+        html += `<div class="muted">Остаток годового лимита: ${r.remainingRefund.toLocaleString('ru-RU')} руб (получено ${r.alreadyReceived.toLocaleString('ru-RU')} руб)</div>`;
+      }
+    }
+    
+    div.innerHTML = html;
+    listEl.appendChild(div);
+  });
+
+  resultsContainer.style.display = 'block';
+});
+
+// Инициализация
+Object.keys(familyData).forEach(id => updateButtonText(id));
+updatePatientSelect();
+</script>
+</body>
+</html>
